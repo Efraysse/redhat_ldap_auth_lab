@@ -1,38 +1,37 @@
-Role Name
-=========
+## ldap-client role
 
-A brief description of the role goes here.
 
-Requirements
-------------
+Deploy this role where you want to enable ldap auth for users.
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
 
-Role Variables
---------------
+## Role Variables
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Variables defined in vars/main.yml
 
-Dependencies
-------------
+| Variable |  value |
+| --------|-------|
+| ca_cert_file | the location of your CA cert file  |
+| ldap_uri | the uri of the ldap server |
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Set these variables with your own settings e.g.
 
-Example Playbook
-----------------
+ca_cert_file: //home/student/ca_cert/EFTrust.ca.pem
+ldap_uri: ldap://serverc:1389
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
 
-License
--------
 
-BSD
 
-Author Information
-------------------
+## Example Playbook
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+
+``` sh
+---
+- name: Install Ldap client
+  hosts: serverc
+  roles:
+    - ldap-client
+```
+
+
+

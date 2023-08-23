@@ -1,38 +1,73 @@
-Role Name
-=========
+## ldap-manager role
 
-A brief description of the role goes here.
 
-Requirements
-------------
+Install and configure a web based LDAP manager container.
+This role is intented to be added to the server owning the ldap-server role.
+It will provide a webapp to manage unix users and groups.
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+## Requirements
 
-Role Variables
---------------
+On the master Ansible server install the following packages:
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+\# For container management
+```
+ansible-galaxy collection install containers.podman
+```
 
-Dependencies
-------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
 
-Example Playbook
-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+## Role Variables
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+Default variables defined in defaults/main.yml:
 
-License
--------
+| Variable | Default value |
+| --------|-------|
+| lam_pwd | master password and lam profile password is set to "lam"  |
+| lam_port | port redirection of the webapp is set 8080 |
 
-BSD
 
-Author Information
-------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+It is recommended to overwrite the password value with your own using an ansible-vault file:
+
+``` sh
+  ansible-vault create secret.yml
+```
+
+And import the secret file in the play:
+
+``` sh
+- name: Install LAM server
+  hosts: serverc
+  vars_files: secret.yml
+  roles:
+    - ldap-manager
+```
+
+
+
+## References
+
+See LDAPAccountManager/lam reference on Github [LDAPAccountManager/lam](https://github.com/LDAPAccountManager/lam)
+
+
+
+## Example Playbook
+
+
+``` sh
+- name: Install LAM server
+  hosts: serverc
+  vars_files: secret.yml
+  vars:
+    lam_port: 8081
+  roles:
+    - ldap-manager
+```
+
+Run and prompt for the secret password defined for secret.yml
+``` sh
+ansible-playbook -K --vault-id @prompt lam.yml
+```
+
+

@@ -1,4 +1,4 @@
-## ldap-server
+## ldap-server role
 
 
 Install and configure then bitnami/openLdap container with TLS enabled and ready for system's user auth.
@@ -63,16 +63,19 @@ mkpasswd --method=sha-512
         the podman module will recreate the container but wil not change the initial persisted values in the ldap. If so you will need to change them
         manualy.
 
+Variables defined in vars/main.yml
 
+| Variable | Default value |
+| --------|-------|
+| ca_key_file | the location of your CA key file for seft signing  |
+| ca_cert_file | the location of your CA cert file | 
+
+See instruction in vars/main.yml to create these files.
 
 ## References
 
 See bitnami/openldap reference on dockerhub [bitnami/openldap](https://hub.docker.com/r/bitnami/openldap/)
 
-## Dependencies
-
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
 
 ## Example Playbook
 
@@ -85,10 +88,6 @@ Including an example of how to use your role (for instance, with variables passe
       roles:
         - ldap-server
 
-## License
-
-
-BSD
 
 
 
