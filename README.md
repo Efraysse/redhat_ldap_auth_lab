@@ -13,16 +13,37 @@ We have three roles :
 
 # Deployment
 
-Firts create your own CA certificate that will be used for self signing
+**1. Firts create your own CA certificate that will be used for self signing**
 
-This will create th CA key:
+This will create your CA key:
 ``` sh
 mkdir -p /home/student/ca_cert
 cd /home/student/ca_cert
 openssl genrsa -out ca.key 4096
 ```
 
-This will create the CA cert
+This will create your CA cert
 ``` sh
-openssl req -new -x509 -days 365 -key ca.key -out *name_of_your_CA_cert*.pem
+openssl req -new -x509 -days 365 -key ca.key -out name_of_your_CA_cert.pem
 ```
+
+**2. Update the variables in the vars directory of ldap-server role**
+
+``` sh
+ca_key_file: /home/student/ca_cert/ca.key
+ca_cert_file: /home/student/ca_cert/name_of_your_CA_cert.pem
+```
+
+**3. Deploy the ldap-server role**
+
+See **[ldap-server](ldap-server/README.md)** README
+
+Set your own password if you want to override the default ones.
+
+**4. Deploy the ldap-manager role**
+
+See **[ldap-manager](ldap-server/README.md)** README
+
+**5. Access the lam manager GUI and start registring users and groups**
+
+http://localhost:8080/lam/templates/login.php
