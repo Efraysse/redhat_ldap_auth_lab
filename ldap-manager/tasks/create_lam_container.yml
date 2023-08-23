@@ -1,0 +1,66 @@
+- name: create ldap network
+  containers.podman.podman_network:
+    name: ldap	
+
+- name: enable lam port container in firewall
+  ansible.posix.firewalld:
+    port: 8081/tcp
+    #port: "{{ lam_port }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: yes
+  become: true
+  become_user: root
+
+- name: run lam container
+  containers.podman.podman_container:
+    name: lam
+    image: docker.io/ldapaccountmanager/lam:latest
+    network: ldap
+    ports:
+     - "{{ lam_port }}:80"
+    env:
+     LDAP_BASE_DOMAIN: "dc=example,dc=org"
+     LDAP_USERS_DN: "ou=users,dc=example,dc=org"
+     LDAP_GROUPS_DN: "ou=groups,dc=example,dc=org"
+     LDAP_SERVER: "ldap://openldap:1389"
+     LDAP_USER: "cn=admin,dc=example,dc=org"
+     LAM_PASSWORD: "{{ lam_pwd }}"
+    state: present
+
+- name: create container-lam unit
+  containers.podman.podman_generate_systemd:
+    name: lam
+    dest: ~/.config/systemd/user
+
+- name: get ldap user info
+  ansible.builtin.getent:
+    database: passwd
+    key: ldap
+- ansible.builtin.debug:
+    msg: "{{ ansible_facts.getent_passwd.ldap[1] }}"
+
+- name: check if ldap user is lingering
+  stat:
+    path: "/var/lib/systemd/linger/ldap"
+  register: user_lingering
+
+- name: enable lingering if needed
+  command: "loginctl enable-linger ldap"
+  when: not user_lingering.stat.exists
+  become: yes
+  become_user: root
+
+- name: systemd reload_daemons for ldap user
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    scope: user
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ ansible_facts.getent_passwd.ldap[1] }}"
+
+- name: lam container must be started and enabled on systemd
+  ansible.builtin.systemd_service:
+    name: container-lam
+    state: started
+    enabled: true
+    scope: user

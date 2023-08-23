@@ -1,0 +1,4 @@
+---
+# defaults file for ldap-manager
+lam_pwd: lam
+lam_port: 8080

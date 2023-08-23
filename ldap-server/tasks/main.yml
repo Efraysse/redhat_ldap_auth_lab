@@ -1,0 +1,17 @@
+---
+# tasks file for ldap-server
+- import_tasks: create_ldap_user.yml
+- import_tasks: create_server_certificat.yml
+  become: true
+  become_user: ldap
+- import_tasks: create_ldap_container.yml
+  become: true
+  become_user: ldap
+- import_tasks: add_groups_dn.yml
+  become: true
+  become_user: ldap
+- import_tasks: add_sudo_schema.yml
+  become: true
+  become_user: ldap
+- import_tasks: enable_firewall_port.yml
+

@@ -1,0 +1,38 @@
+- name: add ldap user end set password
+  ansible.builtin.user:
+    name: ldap
+    password: "{{ ldap_user_password }}"
+
+# Install required cryptography module on target
+- name: install python3-pip package
+  ansible.builtin.package:
+    name : python3-pip
+
+- name: install cryptography python module
+  ansible.builtin.pip:
+    name : cryptography
+
+# Install required ldap module on target
+- name: install openldap and python-devel packages
+  ansible.builtin.package:
+    name : 
+      - openldap-devel
+      - python-devel
+      - gcc
+
+- name: install python-ldap python module
+  ansible.builtin.pip:
+    name : python-ldap
+
+# Install ldap client package
+- name: install openldap-clients
+  ansible.builtin.package:
+    name: openldap-clients
+    state: present
+
+# install custom ldap.conf file
+# use ca_cert_file defined in var directory
+- name: template render
+  template:
+     src: ldap.conf.template.j2
+     dest: /etc/openldap/ldap.conf

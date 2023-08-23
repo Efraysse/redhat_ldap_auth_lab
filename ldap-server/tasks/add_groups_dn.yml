@@ -1,0 +1,11 @@
+---
+# add group DN in ldap
+- name: add group dn in ldap
+  community.general.ldap_entry:
+    dn: ou=groups,dc=example,dc=org
+    objectClass:
+      - organizationalUnit
+      - top
+    server_uri: ldap://localhost:1389  
+    bind_dn: cn=admin,dc=example,dc=org
+    bind_pw: "{{ ldap_admin_password }}" # set to "adminpassword" by default

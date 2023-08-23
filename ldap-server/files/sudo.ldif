@@ -1,0 +1,20 @@
+dn: ou=SUDOers,dc=example,dc=org
+ou: SUDOers
+objectclass: organizationalunit
+
+# sudo defaults
+dn: cn=defaults,ou=SUDOers,dc=example,dc=org
+objectClass: top
+objectClass: sudoRole
+cn: defaults
+description: Default sudoOptions go here
+sudoOption: env_keep+=SSH_AUTH_SOCK
+
+# sudo rule
+dn: cn=%ldapuser,ou=SUDOers,dc=example,dc=org
+objectClass: top
+objectClass: sudoRole
+cn: %ldapuser
+sudoUser: %ldapuser
+sudoHost: ALL
+sudoCommand: ALL

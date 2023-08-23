@@ -1,0 +1,69 @@
+---
+# check if a server certificate is already present
+- name: get information on generated certificate
+  community.crypto.x509_certificate_info:
+    path: /home/ldap/certs/ldap.example.org.crt
+  register: result
+  ignore_errors: yes
+
+- name: create /home/ldap/certs dir
+  ansible.builtin.file:
+    path: /home/ldap/certs
+    state: directory
+    mode: '0770'
+
+# this is the CA cert for self signing
+# ca_cert_file is define in var dirctory or role
+# because when don't want to store this sensible file in role 
+- name: copy CA cert in /home/ldap/certs
+  ansible.builtin.copy:
+    src:  "{{ ca_cert_file }}"
+    dest: /home/ldap/certs/
+    mode: '0664'
+
+- name: generate a signed server certificate if none is present
+  block:
+
+# this is the CA key of your own CA cert for self signing
+# ca_key_file is define in var dirctory or role
+# because when don't want to store this sensible file in role 
+   - name: copy CA key in /home/ldap/certs
+     ansible.builtin.copy:
+       src: "{{ ca_key_file }}"
+       dest: /home/ldap/certs/
+       mode: '0640'
+
+   - name: create private key (RSA, 4096 bits)
+     community.crypto.openssl_privatekey:
+       regenerate: never
+       mode: '0640'
+       path: /home/ldap/certs/ldap.example.org.key
+
+   - name: create certificate signing request (CSR) for self-signed certificate
+     community.crypto.openssl_csr_pipe:
+       privatekey_path: /home/ldap/certs/ldap.example.org.key
+       common_name: "{{ ansible_facts.fqdn }}" 
+       country_name: FR
+       state_or_province_name: Dummy
+       locality_name: Dummy
+       organization_name: EF Tech
+       organizational_unit_name: lab
+     register: csr
+
+   - name: print CSR
+     ansible.builtin.debug:
+       var: csr.csr
+
+   - name: generate an OpenSSL certificate signed with your own CA certificate
+     community.crypto.x509_certificate:
+       path: /home/ldap/certs/ldap.example.org.crt
+       csr_content: "{{ csr.csr }}"
+       ownca_path: /home/ldap/certs/EFTrust.ca.pem
+       ownca_privatekey_path: /home/ldap/certs/ca.key
+       provider: ownca
+
+   - name: delete CA key
+     ansible.builtin.file:
+       path: /home/ldap/certs/ca.key
+       state: absent
+  when: result.failed

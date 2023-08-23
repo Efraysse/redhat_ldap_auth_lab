@@ -1,0 +1,33 @@
+---
+- name: check if sudoschema is present
+  community.general.ldap_search:
+    filter: (cn=*sudo*)
+    dn: cn=schema,cn=config
+    server_uri: ldap://localhost:1389 
+    bind_dn: cn=admin,cn=config
+    bind_pw: "{{ ldap_config_password }}" # set to "configpassword" by default
+    scope: children
+    attrs: dn
+  register: result
+- name: json query
+  set_fact:  
+    #result2: "{{ result.results | community.general.json_query('[*].dn') }}"
+    #result3: "{{ result.results | type_debug }}"
+    result4: "{{ result.results | length }}"
+- name: copy sudo.schema.ldif and import schema if needed
+  block:
+    - name: copy sudo.schema.ldif in /home/ldap/ and import if not already present
+      ansible.builtin.copy:
+        src: sudo.schema.ldif 
+        dest: /home/ldap/
+    - name: import sudoschema if needed
+      command: /usr/bin/ldapadd -h localhost -p 1389 -w "{{ ldap_config_password }}" -D cn=admin,cn=config -f /home/ldap/sudo.schema.ldif
+    - name: copy sudo.ldif in /home/ldap/ and import if not already present
+      ansible.builtin.copy:
+        src: sudo.ldif 
+        dest: /home/ldap/
+    - name: import sudo if needed
+      command: /usr/bin/ldapadd -h localhost -p 1389 -w "{{ ldap_admin_password }}" -D cn=admin,dc=example,dc=org -f /home/ldap/sudo.ldif
+  when:   result4 == "0" 
+
+

@@ -1,0 +1,4 @@
+---
+# vars file for ldap-server
+ca_key_file: /home/student/ca_cert/ca.key
+ca_cert_file: /home/student/ca_cert/EFTrust.ca.pem

@@ -1,0 +1,24 @@
+---
+- name: enable lam port container in firewall
+  ansible.posix.firewalld:
+    port: 1389/tcp
+    permanent: true
+    state: enabled
+    immediate: yes
+
+- name: enable lam port container in firewall
+  ansible.posix.firewalld:
+    port: 1636/tcp
+    permanent: true
+    state: enabled
+    immediate: yes
+
+# set se port
+- name: set SE port active for ldap operation
+  community.general.seport:
+    ports:
+       - 1389
+       - 1636
+    proto: tcp
+    setype: ldap_port_t
+    state: present

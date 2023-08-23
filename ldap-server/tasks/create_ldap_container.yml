@@ -1,0 +1,88 @@
+- name: create /home/ldap/openldapdata dir
+  ansible.builtin.file:
+    path: /home/ldap/openldapdata
+    state: directory
+    owner: ldap
+    group: ldap
+    mode: '0777'
+
+- name: set uid for /home/ldap/certs dir
+  become_method: containers.podman.podman_unshare
+  become: true
+  become_user: ldap
+  ansible.builtin.file:
+    state: directory
+    recurse: true
+    path: /home/ldap/certs
+    owner: 1001
+
+- name: create ldap network
+  containers.podman.podman_network:
+    name: ldap	
+
+- name: run ldap container from Bitnami
+  containers.podman.podman_container:
+    name: openldap
+    image: docker.io/bitnami/openldap
+    network: ldap
+    ports:
+     - "1389:1389"
+     - "1636:1636"
+    env:
+     LDAP_ENABLE_TLS: "yes"
+     LDAP_TLS_CA_FILE: "/opt/bitnami/openldap/certs/EFTrust.ca.pem"
+     LDAP_TLS_KEY_FILE: "/opt/bitnami/openldap/certs/ldap.example.org.key"
+     LDAP_TLS_CERT_FILE: "/opt/bitnami/openldap/certs/ldap.example.org.crt"
+     ALLOW_EMPTY_PASSWORD: "yes"
+     LDAP_CONFIG_ADMIN_ENABLED: "yes"
+     LDAP_ADMIN_PASSWORD: "{{ ldap_admin_password }}"
+     LDAP_CONFIG_ADMIN_PASSWORD: "{{ ldap_config_password }}"
+    volume:
+     - /home/ldap/openldapdata/:/bitnami/openldap:Z
+     - /home/ldap/certs:/opt/bitnami/openldap/certs:Z
+    state: present
+
+- name: create container-openldap unit
+  containers.podman.podman_generate_systemd:
+    name: openldap
+    dest: ~/.config/systemd/user
+
+- name: get ldap user info
+  ansible.builtin.getent:
+    database: passwd
+    key: ldap
+- ansible.builtin.debug:
+    msg: "{{ ansible_facts.getent_passwd.ldap[1] }}"
+
+# this step should be prior the systemd daemon_reload
+# otherwize systemd is not acive for ldap user
+- name: check if ldap user is lingering
+  stat:
+    path: "/var/lib/systemd/linger/ldap"
+  register: user_lingering
+
+- name: enable lingering if needed
+  command: "loginctl enable-linger ldap"
+  when: not user_lingering.stat.exists
+  become: true
+  become_user: root
+
+- name: systemd reload_daemons for ldap user
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    scope: user
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ ansible_facts.getent_passwd.ldap[1] }}"
+
+
+- name:  set container-openldap to be started and enabled on systemd
+  ansible.builtin.systemd_service:
+    name: container-openldap
+    state: started
+    enabled: true
+    scope: user
+  register: myserviceDetails
+  until: myserviceDetails.status.ActiveState == "active"
+  retries: 10
+  delay: 10
+

@@ -1,0 +1,9 @@
+---
+# defaults file for ldap-server
+#
+# set default password for system account ldap to ldap
+ldap_user_password: $6$Qdoh42B/K4/mMAYR$g8eSoUTJSrT7SMaWhOUMpWnHJK3zOXjhiwCoEpxnq2qFbYou1cfDlZS7bz4JxtznMvBo2iakfRt48485JN4L21 
+# set default password for ldap admin account
+ldap_admin_password: adminpassword
+# set default password for ldap config account
+ldap_config_password: configpassword

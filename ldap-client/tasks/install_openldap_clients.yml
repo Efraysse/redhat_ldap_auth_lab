@@ -1,0 +1,64 @@
+---
+- name: Install openldap-clients package
+  ansible.builtin.package:
+    name: openldap-clients
+    state: present
+
+- name: Install authselect and sssd package
+  package:
+    name: 
+      - authselect
+      - sssd
+    state: present
+
+- name: Install oddjob-mkhomedir package
+  ansible.builtin.package:
+    name: oddjob-mkhomedir
+    state: present
+
+- name:  set oddjobd to be started and enabled on systemd
+  ansible.builtin.systemd_service:
+    name: oddjobd
+    state: started
+    enabled: true
+
+- name: copy ca certificat from source
+  copy: 
+    src: "{{ ca_cert_file }}"
+    dest: /etc/openldap/certs
+
+# install custom ldap.conf file 
+- name: template custom ldap.conf file 
+  template:
+     src: ldap.conf.template.j2
+     dest: /etc/openldap/ldap.conf
+
+# install custom sssd.conf file
+- name: template custom sssd.conf file 
+  template:
+     src: sssd.conf.template.j2
+     dest: /etc/sssd/sssd.conf
+     backup: true
+     mode: 0600
+  notify:
+    - restart sssd
+   
+- name: Get current authselect config
+  command: authselect current -r
+  register: authselect_current_raw
+
+# activate mkhome-dir feature  
+- name: Update PAM with authselect
+  command: authselect enable-feature with-mkhomedir
+  when: '"with-mkhomedir" not in authselect_current_raw.stdout'
+
+    
+- name: Ensure sudoers is set in nsswitch.conf
+  ansible.builtin.lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: '^sudoers'
+    line: 'sudoers: files sss systemd'
+
+
+
+

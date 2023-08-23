@@ -1,0 +1,6 @@
+---
+# tasks file for ldap-manager
+- import_tasks: create_lam_container.yml
+  become: true
+  become_user: ldap
+

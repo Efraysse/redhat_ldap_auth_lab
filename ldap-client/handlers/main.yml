@@ -1,0 +1,3 @@
+---
+# handlers file for ldap-client
+- import_tasks: sssd.yml
