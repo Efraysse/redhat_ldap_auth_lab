@@ -50,3 +50,6 @@ http://localhost:8080/lam/templates/login.php
 
 ![Log with the default password or your own if set](images/login_lam.png)
 
+Log with the default password "adminpassword" or your own if you set one, then click on the "Accounts" tab to start create groups and user.
+
+![Accounts](images/accounts.png)
