@@ -54,7 +54,7 @@ Log with the default password "adminpassword" or your own if you set one, then c
 
 ![Accounts](images/accounts.png)
 
-**6. Deploy the ldap-client role on candidate servers
+**6. Deploy the ldap-client role on candidate servers**
 
 See **[ldap-client](ldap-client/README.md)** README
 
