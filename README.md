@@ -53,3 +53,10 @@ http://localhost:8080/lam/templates/login.php
 Log with the default password "adminpassword" or your own if you set one, then click on the "Accounts" tab to start create groups and user.
 
 ![Accounts](images/accounts.png)
+
+**6. Deploy the ldap-client role on candidate servers
+
+See **[ldap-client](ldap-client/README.md)** README
+
+You shoud now be able to log to client servers using accounts you defined in the ldap. Remember that if you create a group called "ldapuser", members will be allowed to sudo all commands.
+

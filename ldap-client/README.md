@@ -16,6 +16,7 @@ Variables defined in vars/main.yml
 Set these variables with your own settings e.g.
 
 ca_cert_file: //home/student/ca_cert/EFTrust.ca.pem
+
 ldap_uri: ldap://serverc:1389
 
 
