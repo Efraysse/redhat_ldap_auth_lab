@@ -70,7 +70,7 @@ Variables defined in vars/main.yml
 | ca_key_file | the location of your CA key file for seft signing  |
 | ca_cert_file | the location of your CA cert file | 
 
-See instruction in vars/main.yml to create these files.
+See instruction [here](../README.md) to create these files.
 
 ## References
 
@@ -86,6 +86,15 @@ See bitnami/openldap reference on dockerhub [bitnami/openldap](https://hub.docke
       vars_files: secret.yml
       roles:
         - ldap-server
+
+## Test
+
+You can validate the installation issuing a ldap query:
+
+``` sh
+ldapsearch -x -h localhost -p 1389 -ZZ -b "dc=example,dc=org"
+``` 
+
 
 
 

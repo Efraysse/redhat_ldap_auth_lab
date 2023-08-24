@@ -1,13 +1,13 @@
 # Set a lab openldap infrastructure for Unix users authentication
 
-The idea is to have a set of ansible roles to quickly deploy an openldap with TLS enbled, register users and groups and configure clients for ldap auth.
+The idea is to have a set of ansible roles to quickly deploy an openldap with TLS enabled, register users and groups and configure clients for ldap auth.
 We have three roles :
 
-**[ldap-server](ldap-server/README.md):** Provide a containerized openldap environement ready for Unix users management. This role will also create the server certificate signed with your own CA auth. The sudo schema will be installed and a sudo rule is set to allow users from "ldapuser" group to sudo.
+**[ldap-server](ldap-server/README.md):** Provide a containerized openldap environement ready for Unix users management. This role will also create the server certificate signed with your own CA cert. The sudo schema will be installed and a sudo rule is set to allow users from "ldapuser" group to sudo.
 
-**[ldap-manager](ldap-server/README.md):** This role will install a containerized WebApp that will be used to register Unix groups and users in the Ldap.
+**[ldap-manager](ldap-manager/README.md):** This role will install a containerized WebApp that will be used to register Unix groups and users in the Ldap.
 
-**[ldap-client](ldap-server/README.md):** Customize a server for users ldap authentication. This role will enable the mk-homedir feature so homedirs for users will be automaticaly created. Users defined in the "ldapuser" group will be able to sudo root as we saw.
+**[ldap-client](ldap-client/README.md):** Customize a server for user ldap authentication. This role will enable the mk-homedir feature so homedirs for users will be automaticaly created. Users defined in the "ldapuser" group will be able to sudo root as we saw.
 
 
 
@@ -42,8 +42,11 @@ Set your own password if you want to override the default ones.
 
 **4. Deploy the ldap-manager role**
 
-See **[ldap-manager](ldap-server/README.md)** README
+See **[ldap-manager](ldap-manager/README.md)** README
 
-**5. Access the lam manager GUI and start registring users and groups**
+**5. Access the lam manager GUI and start registering users and groups**
 
 http://localhost:8080/lam/templates/login.php
+
+![Log with the default password or your own if set](images/login_lam.png)
+
